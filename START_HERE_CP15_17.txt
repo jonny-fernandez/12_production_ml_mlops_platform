@@ -1,0 +1,47 @@
+PROJECT 12 - CP15 / CP16 / CP17 CONSOLIDATED HANDOFF
+=====================================================
+
+1. Extract this ZIP INTO your existing Project 12 root folder:
+   C:\Users\Jonny Fernandez\Documents\github files\12_production_ml_mlops_platform
+   Preserve folders and replace ONLY these existing files:
+     .github/workflows/ci.yml
+     .github/workflows/deploy.yml
+     docs/MODEL_CARD.md
+     docs/INCIDENT_RESPONSE.md
+     docs/SCREENSHOT_PLAN.md
+   Everything else in the ZIP is an addition.
+
+2. From the Project 12 folder run ONE command in PowerShell:
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\CP15_17_VALIDATE_ALL.ps1
+
+3. Expected final line:
+   RESULT: CP15-CP17 OFFLINE VALIDATION PASSED - LIVE AWS RELEASE AND GITHUB PUBLICATION BLOCKED
+
+4. Expected reports (never publish secrets):
+   outputs/cp15_release_gate.json
+   outputs/cp16_reliability_audit.json
+   outputs/cp16_repository_audit.json
+   outputs/cp17_evidence_inventory.json
+
+5. Screenshots and Word document are intentionally NOT fabricated.
+   Capture the eight PNGs in docs/SCREENSHOT_PLAN.md after checking results.
+   After saving them in screenshots/final/, run:
+   .\.venv\Scripts\python.exe -m pip install python-docx==1.2.0
+   .\.venv\Scripts\python.exe .\CP17_BUILD_SCREENSHOT_DOC.py
+
+   The Word handoff embeds the real PNGs and gives exact filenames and descriptions.
+   Wait for the user's confirmation that all screenshots are saved before
+   final README, Git staging/commit or GitHub publication.
+
+NOTES
+- This package does not deploy to AWS, create model approvals, push images,
+  or write to GitHub.
+- CP11-14 offline checks passed earlier, but live AWS deployment/monitoring,
+  and actual promotion/rollback remain unverified and require separate approval.
+- First CI run in GitHub can only be verified after the workflow actually executes.
+- The CP16 offline load check is a small synthetic in-process rehearsal, NOT
+  a production load test or SLO validation.
+- Your local Python 3.12 environment already has the core dependencies.
+- Model, Docker secret, MLflow database and existing .env are NEVER replaced.
+
+See docs/CP15_17_HANDOFF.md for the detailed commands and constraints.

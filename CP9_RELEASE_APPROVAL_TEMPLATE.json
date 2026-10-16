@@ -1,0 +1,13 @@
+{
+  "format": "project12_model_release_approval_v1",
+  "approved": false,
+  "release_target": "public_https_aws_ecs_fargate",
+  "model_name": "p09-attrition-gb",
+  "model_version": "1",
+  "model_sha256": "27585a4b8443be29a7cf41a5a2bfd3227ae4a66d8dd947afd88d38111f404d43",
+  "candidate_manifest_sha256": "REPLACE_WITH_VERIFIED_SHA256_OF_CLOUD_CANDIDATE_MANIFEST",
+  "release_approval_reference": "NOT_APPROVED",
+  "approved_by": "NOT_APPROVED",
+  "approved_on_utc": "NOT_APPROVED",
+  "synthetic_data_only": true
+}

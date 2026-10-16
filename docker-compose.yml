@@ -1,0 +1,55 @@
+# Project 12 CP8: authenticated, LOCAL-ONLY Docker validation.
+# This is a synthetic-data, unpromoted model candidate, not production deployment.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: project12-attrition-api:cp8-local
+    init: true
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Keep the pinned candidate confined to LOCAL deployment. The CP7 model
+      # loader intentionally rejects non-local APP_ENV values.
+      APP_ENV: "local"
+      AUTH_REQUIRED: "true"
+      API_KEY_FILE: "/run/secrets/api_key"
+      MODEL_NAME: "p09-attrition-gb"
+      MODEL_VERSION: "1"
+      MODEL_THRESHOLD: "0.125"
+      MODEL_BUNDLE_DIR: "/app/model"
+    secrets:
+      - api_key
+    volumes:
+      - type: bind
+        source: ./artifacts/cp7_container_model
+        target: /app/model
+        read_only: true
+        bind:
+          create_host_path: false
+    # The model and root filesystem cannot be written to at runtime.
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Readiness checks actual model loading plus authentication configuration.
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; r=urlopen('http://127.0.0.1:8000/ready',timeout=10); assert r.status == 200"
+      interval: 20s
+      timeout: 15s
+      start_period: 60s
+      retries: 3
+
+secrets:
+  # Local Docker Compose file-backed secret. Future cloud deployment should use
+  # a managed secrets service instead. Never commit or upload this key file.
+  api_key:
+    file: ./.secrets/api_key.txt

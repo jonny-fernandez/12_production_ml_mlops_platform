@@ -1,0 +1,15 @@
+# Internal service only. Public HTTPS for Project 12 is the separate AWS ALB/ECS design.
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfolio-mlops-api
+  namespace: project12-mlops
+spec:
+  type: ClusterIP
+  selector:
+    app: portfolio-mlops-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

@@ -1,0 +1,81 @@
+# Project 12: local interpreters, caches and build output
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.ipynb_checkpoints/
+
+# Never publish local secrets (but keep safe template)
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+.secrets/
+**/.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+*.kubeconfig
+*credentials*.json
+
+# Databases, registry runs and binary model objects
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+mlruns/
+mlartifacts/
+mlflow_tracking.db
+*.joblib
+*.pkl
+*.pickle
+
+# Generated datasets, artifacts, outputs and logs
+artifacts/*
+!artifacts/.gitkeep
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+outputs/*
+!outputs/.gitkeep
+logs/*
+!logs/.gitkeep
+*.log
+
+# Terraform generated binaries / state / plan / sensitive variables
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.json
+*.tfvars
+*.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+*.tfbackend
+crash.log
+crash.*.log
+# Keep .terraform.lock.hcl, which pins the AWS provider version.
+
+# Editors / platform
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Keep eight approved PNG screenshots in screenshots/final/.
+# Do not ignore docs/, tests/, .github/, or screenshot evidence.

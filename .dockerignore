@@ -1,0 +1,81 @@
+# Project 12 - CP7 Docker build context exclusions
+# Keep credentials, local databases, synthetic datasets, and generated models
+# out of the Docker image. Container model access is configured separately.
+
+# Local Python environments and package caches
+.venv/
+venv/
+env/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+*.egg-info/
+dist/
+build/
+
+# Source-control and editor state
+.git/
+.github/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Secrets and authentication material
+.env
+.env.*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.kubeconfig
+*credentials*.json
+
+# Tracking databases and MLflow local artifacts
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+mlruns/
+mlartifacts/
+mlflow_tracking.db
+
+# Model artifacts, generated output, and raw data
+artifacts/
+data/
+outputs/
+logs/
+*.joblib
+*.pkl
+*.pickle
+*.csv
+*.parquet
+
+# Tests, notebooks, and local scratch files
+tests/
+.ipynb_checkpoints/
+*.ipynb
+*.log
+*.tmp
+*.bak
+
+# CP8 file-backed Docker secret: never send to build context
+.secrets/
+**/.secrets/
+
+# CP9 Terraform infrastructure, plans and credentials must not enter Docker context
+infrastructure/terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan

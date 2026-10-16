@@ -1,0 +1,21 @@
+model:
+  name: portfolio_model
+  version: local
+  threshold: 0.50
+  source_project: null
+
+serving:
+  max_batch_size: 1000
+  request_timeout_seconds: 10
+
+monitoring:
+  drift_window_size: 500
+  performance_window_size: 500
+  drift_alert_threshold: 0.20
+  latency_p95_warn_ms: 750
+
+promotion:
+  strategy: staged
+  minimum_candidate_observations: 500
+  require_regression_tests: true
+  automatic_promotion: false

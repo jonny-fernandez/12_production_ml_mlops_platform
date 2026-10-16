@@ -1,0 +1,13 @@
+# Project 12 CP7 serving-only dependencies.
+# Aligned to the Python 3.12 prediction-parity environment verified at CP5/CP6.
+# A fully resolved transitive lock is a later reproducibility hardening task.
+fastapi==0.143.0
+uvicorn==0.48.0
+pydantic==2.14.1
+pydantic-settings==2.15.0
+pandas==2.3.3
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.7.2
+joblib==1.5.3
+mlflow==3.17.0

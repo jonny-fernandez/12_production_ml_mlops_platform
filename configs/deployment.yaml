@@ -1,0 +1,11 @@
+deployment:
+  cloud: aws
+  strategy: canary
+  initial_canary_percent: 10
+  rollback_on_health_failure: true
+  rollback_on_regression_failure: true
+
+observability:
+  structured_logging: true
+  metrics: true
+  tracing: true

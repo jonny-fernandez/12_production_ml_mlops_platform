@@ -1,0 +1,32 @@
+PROJECT 12 — CP9 CONSOLIDATED REMAINDER (October 2026)
+
+This package replaces the piecemeal CP9 handoffs. All remaining offline
+CP9 deliverables and commands are included in one ZIP.
+
+DO NOT overwrite .env, .secrets, MLflow databases, model artifacts,
+.terraform.lock.hcl, or Terraform state.
+
+1) Extract this ZIP over your existing Project 12 folder, preserving paths.
+2) Open PowerShell in the Project 12 folder.
+3) Run the following 2 commands:
+
+   terraform -chdir=".\infrastructure\terraform" fmt
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\CP9_VALIDATE_ALL.ps1
+
+Expected final output:
+   RESULT: CP9 OFFLINE VALIDATION PASSED — DEPLOYMENT DISABLED
+
+If a test fails, stop and share only the ERROR OUTPUT (not credentials).
+
+Read CP9_CONSOLIDATED_RUNBOOK.md for exact file inventory, architecture,
+pricing constraints, conditional FUTURE approval, DNS/certificate, image,
+AWS commands and teardown workflow.
+
+Offline checks do NOT require AWS credentials or a domain.
+The synthetic model remains candidate_not_promoted / pending_review.
+NO AWS APPLY, PUBLIC ENDPOINT OR MODEL APPROVAL IS AUTHORIZED HERE.
+
+At successful validation, treat CP9 (Terraform IaC design and offline
+verification) as ready to close; CP10 handles Kubernetes validation,
+CP11 handles AWS deployment after explicit authorization, and CP14 handles
+release/promotion/rollback.

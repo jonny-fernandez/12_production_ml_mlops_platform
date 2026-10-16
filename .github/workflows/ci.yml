@@ -1,0 +1,56 @@
+name: project12-ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: project12-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install tested serving and test dependencies
+        run: |
+          python -m pip install -r requirements-container.txt
+          python -m pip install 'pytest==9.1.1' 'PyYAML==6.0.3'
+          python -m pip check
+      - name: Fail-closed offline CI and release controls
+        run: python CP15_RELEASE_GATE.py
+      - name: All Python regression tests (no live credentials)
+        run: python -m pytest -q --disable-warnings -p no:cacheprovider
+      - name: Offline failure, recovery and load rehearsal
+        run: python CP16_RELIABILITY_AUDIT.py
+      - name: Offline repository secret and reproducibility inspection
+        run: python CP16_REPOSITORY_AUDIT.py
+      - name: Final evidence and publication blockers
+        run: python CP17_EVIDENCE_AUDIT.py
+  terraform-static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.16.5'
+      - name: Format gate
+        run: terraform -chdir=infrastructure/terraform fmt -check -recursive
+      - name: Provider initialization without remote backend
+        run: terraform -chdir=infrastructure/terraform init -backend=false -input=false -lockfile=readonly
+      - name: Syntax and provider validation
+        run: terraform -chdir=infrastructure/terraform validate
+  docker-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build local-only container; no registry push
+        run: docker build --file Dockerfile --tag project12-ci:local .

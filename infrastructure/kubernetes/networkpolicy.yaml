@@ -1,0 +1,21 @@
+# No public ingress. Only labeled client pods in the same namespace may access port 8000.
+# The network plugin must support NetworkPolicy for this to be enforced.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: portfolio-mlops-api-ingress
+  namespace: project12-mlops
+spec:
+  podSelector:
+    matchLabels:
+      app: portfolio-mlops-api
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              role: authorized-api-client
+      ports:
+        - protocol: TCP
+          port: 8000

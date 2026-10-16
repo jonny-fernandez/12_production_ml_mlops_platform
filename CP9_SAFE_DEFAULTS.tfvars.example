@@ -1,0 +1,17 @@
+# EXAMPLE ONLY. Do not rename to .auto.tfvars or apply during CP9.
+# No credentials, secrets, or actual approval values belong here.
+aws_region                  = "us-east-1"
+environment                 = "dev"
+enable_aws_resources        = false
+enable_public_https         = false
+enable_ecs_deployment      = false
+cloud_runtime_verified     = false
+model_release_approved     = false
+manage_api_dns             = false
+api_domain_name            = ""
+acm_certificate_arn        = ""
+api_key_secret_arn         = ""
+release_approval_reference = ""
+approved_image_digest      = ""
+route53_hosted_zone_id     = ""
+ecs_desired_count          = 1

@@ -1,0 +1,21 @@
+name: project12-release-review-only
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Offline pre-deployment evidence review (never deploy)
+        run: python CP15_RELEASE_GATE.py
+      - name: Manual next steps
+        run: |
+          echo 'Release review only; no deployment is authorized.'
+          echo 'Model approval, security review, HTTPS domain/ACM, budget, ECR digest and rollback evidence are required.'
+          echo 'Follow docs/CP15_17_HANDOFF.md and CP11 runbook after independent sign-off.'

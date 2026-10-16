@@ -1,0 +1,117 @@
+# CP10 blueprint only: intentionally not deployable without independent release authorization.
+# Do not change replicas/image/approval flags before CP11/CP14 review.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-mlops-api
+  namespace: project12-mlops
+  labels:
+    app: portfolio-mlops-api
+spec:
+  replicas: 0
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: portfolio-mlops-api
+  template:
+    metadata:
+      labels:
+        app: portfolio-mlops-api
+    spec:
+      serviceAccountName: portfolio-mlops-api
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          # Deliberately unresolvable placeholder. Replace only with an approved
+          # immutable sha256 digest for a verified cloud release image.
+          image: registry.invalid/project12/approved-api@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          env:
+            - name: APP_ENV
+              value: cloud
+            - name: AUTH_REQUIRED
+              value: 'true'
+            - name: API_KEY_FILE
+              value: /run/secrets/api_key
+            - name: MODEL_NAME
+              value: p09-attrition-gb
+            - name: MODEL_VERSION
+              value: '1'
+            - name: MODEL_THRESHOLD
+              value: '0.125'
+            - name: MODEL_BUNDLE_DIR
+              value: /app/model
+            # Fail closed: model must remain unapproved in this CP10 blueprint.
+            - name: MODEL_RELEASE_APPROVED
+              value: 'false'
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: '1'
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 3
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: api-credential
+              mountPath: /run/secrets
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+          terminationMessagePolicy: FallbackToLogsOnError
+      volumes:
+        # Secret is NOT provisioned by this package; do not commit its value.
+        - name: api-credential
+          secret:
+            secretName: project12-api-key
+            optional: false
+            defaultMode: 288 # decimal equivalent of 0440
+            items:
+              - key: api_key
+                path: api_key
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
