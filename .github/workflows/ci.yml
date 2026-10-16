@@ -21,7 +21,7 @@ jobs:
       - name: Install tested serving and test dependencies
         run: |
           python -m pip install -r requirements-container.txt
-          python -m pip install 'pytest==9.1.1' 'PyYAML==6.0.3'
+          python -m pip install 'pytest==9.1.1' 'PyYAML==6.0.3' 'httpx2==2.13.1' 'python-docx==1.2.0'
           python -m pip check
       - name: Fail-closed offline CI and release controls
         run: python CP15_RELEASE_GATE.py
@@ -43,6 +43,8 @@ jobs:
           terraform_version: '1.16.5'
       - name: Format gate
         run: terraform -chdir=infrastructure/terraform fmt -check -recursive
+      # Keep lockfile immutable in CI. Regenerate Windows/Linux hashes locally
+      # with CP15_REPAIR_AND_VALIDATE.ps1 and commit the updated lockfile.
       - name: Provider initialization without remote backend
         run: terraform -chdir=infrastructure/terraform init -backend=false -input=false -lockfile=readonly
       - name: Syntax and provider validation

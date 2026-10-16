@@ -17,6 +17,8 @@ LEAK_PATTERNS = (
     re.compile(r'sk-[A-Za-z0-9]{24,}'),
 )
 TEXT_EXT = frozenset({'.py','.md','.yml','.yaml','.tf','.ps1','.toml','.txt','.json','.example','.gitignore','.dockerignore'})
+# Public placeholder template, intentionally tracked by Git; still scan its contents.
+SAFE_TRACKED_TEMPLATES = frozenset({'.env.example'})
 
 def run_audit(root:Path=ROOT)->dict:
     root=root.resolve()
@@ -45,7 +47,9 @@ def run_audit(root:Path=ROOT)->dict:
     potential_leaks=[]
     if git_initialized:
         tracked=[p for p in cp.stdout.decode('utf-8','replace').split('\0') if p]
-        unsafe=[p for p in tracked if FORBIDDEN_TRACKED.search(p.replace('\\','/'))]
+        unsafe=[p for p in tracked
+                if p.replace('\\','/').lower() not in SAFE_TRACKED_TEMPLATES
+                and FORBIDDEN_TRACKED.search(p.replace('\\','/'))]
         for p in tracked:
             file=root/p
             if file.is_file() and file.stat().st_size<2_000_000 and (file.suffix.lower() in TEXT_EXT or file.name in {'.gitignore','.dockerignore'}):
