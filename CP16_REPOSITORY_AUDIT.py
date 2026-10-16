@@ -20,6 +20,50 @@ TEXT_EXT = frozenset({'.py','.md','.yml','.yaml','.tf','.ps1','.toml','.txt','.j
 # Public placeholder template, intentionally tracked by Git; still scan its contents.
 SAFE_TRACKED_TEMPLATES = frozenset({'.env.example'})
 
+# CP9 deliberately publishes a documentation-only tfvars example.  Only this
+# exact repository-root file may be tracked, and only with these safe values.
+# No actual .tfvars, .auto.tfvars, or populated secret fields are exempted.
+SAFE_CP9_EXAMPLE = 'CP9_SAFE_DEFAULTS.tfvars.example'
+SAFE_CP9_VALUES = {
+    'aws_region': '"us-east-1"',
+    'environment': '"dev"',
+    'enable_aws_resources': 'false',
+    'enable_public_https': 'false',
+    'enable_ecs_deployment': 'false',
+    'cloud_runtime_verified': 'false',
+    'model_release_approved': 'false',
+    'manage_api_dns': 'false',
+    'api_domain_name': '""',
+    'acm_certificate_arn': '""',
+    'api_key_secret_arn': '""',
+    'release_approval_reference': '""',
+    'approved_image_digest': '""',
+    'route53_hosted_zone_id': '""',
+    'ecs_desired_count': '1',
+}
+
+def cp9_example_is_safe(path: Path) -> bool:
+    """Fail closed if the tracked Terraform example is populated or edited."""
+    try:
+        if not path.is_file() or path.stat().st_size > 16_384:
+            return False
+        assignments = {}
+        for line in path.read_text(encoding='utf-8').splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith('#'):
+                continue
+            match = re.fullmatch(r'([a-z][a-z0-9_]*)\s*=\s*("[^"\n]*"|false|true|[0-9]+)', stripped)
+            if not match:
+                return False
+            name, value = match.groups()
+            if name in assignments:
+                return False
+            assignments[name] = value
+        return assignments == SAFE_CP9_VALUES
+    except (UnicodeError, OSError):
+        return False
+
+
 def run_audit(root:Path=ROOT)->dict:
     root=root.resolve()
     checks={
@@ -47,9 +91,15 @@ def run_audit(root:Path=ROOT)->dict:
     potential_leaks=[]
     if git_initialized:
         tracked=[p for p in cp.stdout.decode('utf-8','replace').split('\0') if p]
-        unsafe=[p for p in tracked
-                if p.replace('\\','/').lower() not in SAFE_TRACKED_TEMPLATES
-                and FORBIDDEN_TRACKED.search(p.replace('\\','/'))]
+        unsafe=[]
+        for p in tracked:
+            normalized=p.replace('\\','/')
+            if normalized == SAFE_CP9_EXAMPLE:
+                if not cp9_example_is_safe(root / p):
+                    unsafe.append(p)
+                continue
+            if normalized.lower() not in SAFE_TRACKED_TEMPLATES and FORBIDDEN_TRACKED.search(normalized):
+                unsafe.append(p)
         for p in tracked:
             file=root/p
             if file.is_file() and file.stat().st_size<2_000_000 and (file.suffix.lower() in TEXT_EXT or file.name in {'.gitignore','.dockerignore'}):
